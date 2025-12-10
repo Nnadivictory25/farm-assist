@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useSuspenseQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { cropsQueryOptions, addCrop, deleteCrop } from '@/utils/crops'
 import { fieldsQueryOptions } from '@/utils/fields'
 import { Card, CardContent } from '@/components/ui/card' // still used for empty states
@@ -46,8 +46,8 @@ export const Route = createFileRoute('/dashboard/crops')({
 
 function CropsPage() {
   const queryClient = useQueryClient()
-  const { data: crops, isLoading } = useQuery(cropsQueryOptions())
-  const { data: fields } = useQuery(fieldsQueryOptions())
+  const { data: crops } = useSuspenseQuery(cropsQueryOptions())
+  const { data: fields } = useSuspenseQuery(fieldsQueryOptions())
   const [open, setOpen] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
@@ -108,30 +108,6 @@ function CropsPage() {
         notes: formData.notes || undefined,
       },
     })
-  }
-
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Crops</h1>
-        </div>
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {[...Array(3)].map((_, i) => (
-            <div
-              key={i}
-              className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 animate-pulse"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-muted shrink-0" />
-              <div className="flex-1 space-y-2">
-                <div className="h-4 bg-muted rounded w-24" />
-                <div className="h-3 bg-muted rounded w-32" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    )
   }
 
   return (

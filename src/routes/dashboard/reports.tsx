@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { reportQueryOptions } from '@/utils/reports'
 import { formatCurrency, formatDate } from '@/utils/format'
 import { authMiddleware } from '@/middleware/auth'
@@ -24,20 +24,7 @@ const CATEGORY_ICONS: Record<string, string> = {
 }
 
 function ReportsPage() {
-  const { data, isLoading } = useQuery(reportQueryOptions())
-
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-bold">Reports</h1>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="col-span-2 h-48 bg-muted rounded-3xl animate-pulse" />
-          <div className="h-32 bg-muted rounded-3xl animate-pulse" />
-          <div className="h-32 bg-muted rounded-3xl animate-pulse" />
-        </div>
-      </div>
-    )
-  }
+  const { data } = useSuspenseQuery(reportQueryOptions())
 
   const { totalExpenses, totalRevenue, profit, expensesByCategory, recentExpenses, recentSales } =
     data ?? {

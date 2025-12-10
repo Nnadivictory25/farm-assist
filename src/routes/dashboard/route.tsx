@@ -26,12 +26,32 @@ import {
 import { authClient, useSession } from '@/lib/auth-client'
 import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router'
 import { LogOut } from 'lucide-react'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { toast } from 'sonner'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export const Route = createFileRoute('/dashboard')({
   component: DashboardLayout,
 })
+
+function PageSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-32" />
+          <Skeleton className="h-4 w-48" />
+        </div>
+        <Skeleton className="h-10 w-28" />
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {[...Array(6)].map((_, i) => (
+          <Skeleton key={i} className="h-24 rounded-xl" />
+        ))}
+      </div>
+    </div>
+  )
+}
 
 function DashboardLayout() {
   const { data: session, refetch } = useSession()
@@ -122,7 +142,9 @@ function DashboardLayout() {
           </div>
         </header>
         <main className="p-6">
-          <Outlet />
+          <Suspense fallback={<PageSkeleton />}>
+            <Outlet />
+          </Suspense>
         </main>
       </SidebarInset>
     </SidebarProvider>

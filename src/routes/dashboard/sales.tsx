@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useSuspenseQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { salesQueryOptions, addSale, deleteSale } from '@/utils/sales'
 import { harvestsQueryOptions, HARVEST_UNITS } from '@/utils/harvests'
 import { Button } from '@/components/ui/button'
@@ -53,8 +53,8 @@ export const Route = createFileRoute('/dashboard/sales')({
 
 function SalesPage() {
   const queryClient = useQueryClient()
-  const { data: sales, isLoading } = useQuery(salesQueryOptions())
-  const { data: harvests } = useQuery(harvestsQueryOptions())
+  const { data: sales } = useSuspenseQuery(salesQueryOptions())
+  const { data: harvests } = useSuspenseQuery(harvestsQueryOptions())
   const [open, setOpen] = useState(false)
   const [formData, setFormData] = useState({
     harvestId: '',
@@ -138,52 +138,6 @@ function SalesPage() {
 
   // Calculate total revenue
   const totalRevenue = sales?.reduce((sum, s) => sum + s.totalAmount, 0) ?? 0
-
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Sales</h1>
-        </div>
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Crop</TableHead>
-                <TableHead>Buyer</TableHead>
-                <TableHead>Quantity</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead className="w-12"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {[...Array(4)].map((_, i) => (
-                <TableRow key={i} className="animate-pulse">
-                  <TableCell>
-                    <div className="h-4 bg-muted rounded w-24" />
-                  </TableCell>
-                  <TableCell>
-                    <div className="h-4 bg-muted rounded w-20" />
-                  </TableCell>
-                  <TableCell>
-                    <div className="h-4 bg-muted rounded w-16" />
-                  </TableCell>
-                  <TableCell>
-                    <div className="h-4 bg-muted rounded w-24" />
-                  </TableCell>
-                  <TableCell>
-                    <div className="h-4 bg-muted rounded w-20 ml-auto" />
-                  </TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="space-y-6">

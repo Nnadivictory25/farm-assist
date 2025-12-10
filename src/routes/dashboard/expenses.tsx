@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useSuspenseQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   expensesQueryOptions,
   addExpense,
@@ -70,8 +70,8 @@ const CATEGORY_ICONS: Record<string, string> = {
 
 function ExpensesPage() {
   const queryClient = useQueryClient()
-  const { data: expenses, isLoading } = useQuery(expensesQueryOptions())
-  const { data: crops } = useQuery(cropsQueryOptions())
+  const { data: expenses } = useSuspenseQuery(expensesQueryOptions())
+  const { data: crops } = useSuspenseQuery(cropsQueryOptions())
   const [open, setOpen] = useState(false)
   const [formData, setFormData] = useState({
     category: '',
@@ -136,40 +136,6 @@ function ExpensesPage() {
 
   // Calculate total expenses
   const totalExpenses = expenses?.reduce((sum, e) => sum + e.totalCost, 0) ?? 0
-
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Expenses</h1>
-        </div>
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Category</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead className="w-12"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {[...Array(4)].map((_, i) => (
-                <TableRow key={i} className="animate-pulse">
-                  <TableCell><div className="h-4 bg-muted rounded w-24" /></TableCell>
-                  <TableCell><div className="h-4 bg-muted rounded w-32" /></TableCell>
-                  <TableCell><div className="h-4 bg-muted rounded w-24" /></TableCell>
-                  <TableCell><div className="h-4 bg-muted rounded w-20 ml-auto" /></TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="space-y-6">

@@ -2,7 +2,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { authMiddleware } from '@/middleware/auth'
 import { statsQueryOptions } from '@/utils/dashboard'
 import { formatCurrency } from '@/utils/format'
-import { useQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import {
   Leaf,
@@ -21,28 +21,7 @@ export const Route = createFileRoute('/dashboard/')({
 })
 
 function DashboardHome() {
-  const { data: stats, isLoading } = useQuery(statsQueryOptions())
-
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {[...Array(6)].map((_, i) => (
-            <Card key={i} className="animate-pulse py-3 shadow-none">
-              <CardContent className="flex items-center justify-between py-0">
-                <div className="space-y-1">
-                  <div className="h-3 bg-muted rounded w-20" />
-                  <div className="h-6 bg-muted rounded w-16" />
-                </div>
-                <div className="h-8 w-8 bg-muted rounded" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    )
-  }
+  const { data: stats } = useSuspenseQuery(statsQueryOptions())
 
   const statCards = [
     {

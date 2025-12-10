@@ -1,5 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  useSuspenseQuery,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { fieldsQueryOptions, addField, deleteField } from '@/utils/fields'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -37,7 +41,7 @@ export const Route = createFileRoute('/dashboard/fields')({
 
 function FieldsPage() {
   const queryClient = useQueryClient()
-  const { data: fields, isLoading } = useQuery(fieldsQueryOptions())
+  const { data: fields } = useSuspenseQuery(fieldsQueryOptions())
   const [open, setOpen] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
@@ -86,26 +90,6 @@ function FieldsPage() {
         notes: formData.notes || undefined,
       },
     })
-  }
-
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Fields</h1>
-        </div>
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {[...Array(3)].map((_, i) => (
-            <Card key={i} className="animate-pulse py-4 shadow-none">
-              <CardContent className="py-0">
-                <div className="h-5 bg-muted rounded w-32 mb-2" />
-                <div className="h-4 bg-muted rounded w-24" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    )
   }
 
   return (
