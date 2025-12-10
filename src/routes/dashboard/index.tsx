@@ -1,8 +1,9 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
+import { Card, CardContent } from '@/components/ui/card'
+import { authMiddleware } from '@/middleware/auth'
 import { statsQueryOptions } from '@/utils/dashboard'
 import { formatCurrency } from '@/utils/format'
-import { Card, CardContent } from '@/components/ui/card'
+import { useQuery } from '@tanstack/react-query'
+import { createFileRoute } from '@tanstack/react-router'
 import {
   Leaf,
   MapPin,
@@ -11,7 +12,6 @@ import {
   TrendingUp,
   Wallet,
 } from 'lucide-react'
-import { authMiddleware } from '@/middleware/auth'
 
 export const Route = createFileRoute('/dashboard/')({
   component: DashboardHome,

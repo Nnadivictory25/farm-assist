@@ -1,16 +1,4 @@
-import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router'
 import { AppSidebar } from '@/components/app-sidebar'
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from '@/components/ui/sidebar'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,11 +10,22 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from '@/components/ui/sidebar'
+import { authClient, useSession } from '@/lib/auth-client'
+import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router'
 import { LogOut } from 'lucide-react'
-import { useSession } from '@/lib/auth-client'
-import { authClient } from '@/lib/auth-client'
 import { toast } from 'sonner'
 
 export const Route = createFileRoute('/dashboard')({
