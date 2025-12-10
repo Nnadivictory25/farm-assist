@@ -4,7 +4,7 @@ import { auth } from '@/lib/auth'
 import { queryOptions } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { getRequestHeaders } from '@tanstack/react-start/server'
-import { and, desc, eq, or } from 'drizzle-orm'
+import { and, desc, eq, sql } from 'drizzle-orm'
 
 export const getExpenses = createServerFn({ method: 'GET' }).handler(
   async () => {
@@ -15,6 +15,7 @@ export const getExpenses = createServerFn({ method: 'GET' }).handler(
       throw new Error('Unauthorized')
     }
 
+    // Get expenses that belong to the user via field ownership
     const data = await db
       .select({
         id: expenses.id,
@@ -35,11 +36,19 @@ export const getExpenses = createServerFn({ method: 'GET' }).handler(
       })
       .from(expenses)
       .leftJoin(crops, eq(expenses.cropId, crops.id))
-      .leftJoin(fields, or(eq(expenses.fieldId, fields.id), eq(crops.fieldId, fields.id)))
-      .where(eq(fields.userId, session.user.id))
+      .leftJoin(
+        fields,
+        sql`${expenses.fieldId} = ${fields.id} OR (${expenses.cropId} IS NOT NULL AND ${crops.fieldId} = ${fields.id})`,
+      )
+      .where(sql`${fields.userId} = ${session.user.id}`)
       .orderBy(desc(expenses.purchasedOn))
 
-    console.log('💸 Expenses fetched for user:', session.user.id, '- Count:', data.length)
+    console.log(
+      '💸 Expenses fetched for user:',
+      session.user.id,
+      '- Count:',
+      data.length,
+    )
     return data
   },
 )
@@ -76,9 +85,13 @@ export const addExpense = createServerFn({ method: 'POST' })
 
     // Verify crop/field belongs to user if provided
     if (data.cropId) {
-      const [crop] = await db.select().from(crops)
+      const [crop] = await db
+        .select()
+        .from(crops)
         .innerJoin(fields, eq(crops.fieldId, fields.id))
-        .where(and(eq(crops.id, data.cropId), eq(fields.userId, session.user.id)))
+        .where(
+          and(eq(crops.id, data.cropId), eq(fields.userId, session.user.id)),
+        )
 
       if (!crop) {
         throw new Error('Crop not found or unauthorized')
@@ -86,8 +99,12 @@ export const addExpense = createServerFn({ method: 'POST' })
     }
 
     if (data.fieldId) {
-      const [field] = await db.select().from(fields)
-        .where(and(eq(fields.id, data.fieldId), eq(fields.userId, session.user.id)))
+      const [field] = await db
+        .select()
+        .from(fields)
+        .where(
+          and(eq(fields.id, data.fieldId), eq(fields.userId, session.user.id)),
+        )
 
       if (!field) {
         throw new Error('Field not found or unauthorized')
@@ -111,7 +128,12 @@ export const addExpense = createServerFn({ method: 'POST' })
       })
       .returning()
 
-    console.log('✅ Expense added for user:', session.user.id, '- Item:', newExpense.item)
+    console.log(
+      '✅ Expense added for user:',
+      session.user.id,
+      '- Item:',
+      newExpense.item,
+    )
     return newExpense
   })
 
@@ -126,10 +148,14 @@ export const deleteExpense = createServerFn({ method: 'POST' })
     }
 
     // Only delete expenses linked to user's crops/fields
-    await db.delete(expenses)
-      .where(eq(expenses.id, id))
+    await db.delete(expenses).where(eq(expenses.id, id))
 
-    console.log('🗑️ Expense deleted for user:', session.user.id, '- Expense ID:', id)
+    console.log(
+      '🗑️ Expense deleted for user:',
+      session.user.id,
+      '- Expense ID:',
+      id,
+    )
     return { success: true }
   })
 
