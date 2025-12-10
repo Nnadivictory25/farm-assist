@@ -61,21 +61,21 @@ The application uses **TanStack Start** for a unified full-stack React architect
 ```mermaid
 graph TB
     subgraph "Frontend Layer"
-        A[React Components]
-        B[TanStack Router]
-        C[TanStack Query]
-        D[shadcn/ui Components]
+        A["<b>React Components</b><br/><small>UI Components</small>"]
+        B["<b>TanStack Router</b><br/><small>File-based Routing</small>"]
+        C["<b>TanStack Query</b><br/><small>State Management</small>"]
+        D["<b>shadcn/ui</b><br/><small>Component Library</small>"]
     end
 
     subgraph "Backend Layer"
-        E[Server Functions]
-        F[Better Auth]
-        G[Middleware]
+        E["<b>Server Functions</b><br/><small>API Endpoints</small>"]
+        F["<b>Better Auth</b><br/><small>Authentication</small>"]
+        G["<b>Middleware</b><br/><small>Request Processing</small>"]
     end
 
     subgraph "Data Layer"
-        H[Drizzle ORM]
-        I[SQLite Database]
+        H["<b>Drizzle ORM</b><br/><small>Database Operations</small>"]
+        I["<b>SQLite Database</b><br/><small>Data Storage</small>"]
     end
 
     A --> B
@@ -88,15 +88,13 @@ graph TB
     E --> H
     H --> I
 
-    style A fill:#61dafb
-    style B fill:#ff6b6b
-    style C fill:#4ecdc4
-    style D fill:#95e1d3
-    style E fill:#f38181
-    style F fill:#aa96da
-    style G fill:#fcbad3
-    style H fill:#ffffd2
-    style I fill:#a8e6cf
+    classDef frontend fill:#e3f2fd,stroke:#1976d2,stroke-width:3px,color:#000000
+    classDef backend fill:#fce4ec,stroke:#c2185b,stroke-width:3px,color:#000000
+    classDef data fill:#e8f5e8,stroke:#388e3c,stroke-width:3px,color:#000000
+
+    class A,B,C,D frontend
+    class E,F,G backend
+    class H,I data
 ```
 
 ### Design Patterns:
@@ -111,41 +109,41 @@ graph TB
 
 ```mermaid
 graph TD
-    A[src/] --> B[components/]
-    A --> C[db/]
-    A --> D[lib/]
-    A --> E[routes/]
-    A --> F[utils/]
-    A --> G[hooks/]
+    A["<b>src/</b><br/><small>Root Directory</small>"] --> B["<b>components/</b><br/><small>UI Components</small>"]
+    A --> C["<b>db/</b><br/><small>Database Config</small>"]
+    A --> D["<b>lib/</b><br/><small>Core Utilities</small>"]
+    A --> E["<b>routes/</b><br/><small>Page Routes</small>"]
+    A --> F["<b>utils/</b><br/><small>Business Logic</small>"]
+    A --> G["<b>hooks/</b><br/><small>React Hooks</small>"]
 
-    B --> B1[ui/]
-    B --> B2[app-sidebar.tsx]
-    B --> B3[logo.tsx]
+    B --> B1["<b>ui/</b><br/><small>shadcn/ui</small>"]
+    B --> B2["<b>app-sidebar.tsx</b><br/><small>Navigation</small>"]
+    B --> B3["<b>logo.tsx</b><br/><small>Branding</small>"]
 
-    C --> C1[index.ts]
-    C --> C2[migrate.ts]
-    C --> C3[schema.ts]
+    C --> C1["<b>index.ts</b><br/><small>DB Connection</small>"]
+    C --> C2["<b>migrate.ts</b><br/><small>Migrations</small>"]
+    C --> C3["<b>schema.ts</b><br/><small>Database Schema</small>"]
 
-    E --> E1[api/]
-    E --> E2[dashboard/]
-    E --> E3[__root.tsx]
-    E --> E4[index.tsx]
-    E --> E5[sign-in.tsx]
+    E --> E1["<b>api/</b><br/><small>API Routes</small>"]
+    E --> E2["<b>dashboard/</b><br/><small>Dashboard Pages</small>"]
+    E --> E3["<b>__root.tsx</b><br/><small>Root Layout</small>"]
+    E --> E4["<b>index.tsx</b><br/><small>Landing Page</small>"]
+    E --> E5["<b>sign-in.tsx</b><br/><small>Auth Page</small>"]
 
-    E2 --> E2a[fields.tsx]
-    E2 --> E2b[crops.tsx]
-    E2 --> E2c[expenses.tsx]
-    E2 --> E2d[harvests.tsx]
-    E2 --> E2e[sales.tsx]
-    E2 --> E2f[reports.tsx]
+    E2 --> E2a["<b>fields.tsx</b><br/><small>Field Management</small>"]
+    E2 --> E2b["<b>crops.tsx</b><br/><small>Crop Tracking</small>"]
+    E2 --> E2c["<b>expenses.tsx</b><br/><small>Expense Tracking</small>"]
+    E2 --> E2d["<b>harvests.tsx</b><br/><small>Harvest Logging</small>"]
+    E2 --> E2e["<b>sales.tsx</b><br/><small>Sales Management</small>"]
+    E2 --> E2f["<b>reports.tsx</b><br/><small>Financial Reports</small>"]
 
-    style A fill:#e1f5fe
-    style B fill:#f3e5f5
-    style C fill:#e8f5e8
-    style D fill:#fff3e0
-    style E fill:#fce4ec
-    style F fill:#e0f2f1
-    style G fill:#f1f8e9
+    classDef root fill:#ff6b6b,stroke:#c92a2a,stroke-width:3px,color:#ffffff
+    classDef folder fill:#4ecdc4,stroke:#2b8a3e,stroke-width:3px,color:#000000
+    classDef file fill:#45b7d1,stroke:#1864ab,stroke-width:2px,color:#ffffff
+
+    class A root
+    class B,C,D,E,F,G folder
+    class B1,B2,B3,C1,C2,C3,E1,E2,E3,E4,E5,E2a,E2b,E2c,E2d,E2e,E2f file
 ```
 
 ## 4. Database Schema and Data Models
@@ -254,22 +252,22 @@ graph TD
 ```mermaid
 graph TD
     subgraph "Public Routes"
-        A[/ - Landing Page]
-        B[/sign-in - Authentication]
+        A["<b>/</b><br/><small>Landing Page</small>"]
+        B["<b>/sign-in</b><br/><small>Authentication</small>"]
     end
 
     subgraph "API Routes"
-        C[/api/auth/* - Better Auth Handler]
+        C["<b>/api/auth/*</b><br/><small>Better Auth Handler</small>"]
     end
 
     subgraph "Protected Dashboard Routes"
-        D[/dashboard - Main Dashboard]
-        E[/dashboard/fields - Field Management]
-        F[/dashboard/crops - Crop Tracking]
-        G[/dashboard/expenses - Expense Management]
-        H[/dashboard/harvests - Harvest Logging]
-        I[/dashboard/sales - Sales Tracking]
-        J[/dashboard/reports - Financial Reports]
+        D["<b>/dashboard</b><br/><small>Main Dashboard</small>"]
+        E["<b>/dashboard/fields</b><br/><small>Field Management</small>"]
+        F["<b>/dashboard/crops</b><br/><small>Crop Tracking</small>"]
+        G["<b>/dashboard/expenses</b><br/><small>Expense Management</small>"]
+        H["<b>/dashboard/harvests</b><br/><small>Harvest Logging</small>"]
+        I["<b>/dashboard/sales</b><br/><small>Sales Tracking</small>"]
+        J["<b>/dashboard/reports</b><br/><small>Financial Reports</small>"]
     end
 
     A --> B
@@ -281,16 +279,13 @@ graph TD
     D --> I
     D --> J
 
-    style A fill:#4caf50
-    style B fill:#2196f3
-    style C fill:#ff9800
-    style D fill:#9c27b0
-    style E fill:#f44336
-    style F fill:#009688
-    style G fill:#795548
-    style H fill:#607d8b
-    style I fill:#e91e63
-    style J fill:#3f51b5
+    classDef publicRoute fill:#4caf50,stroke:#2e7d32,stroke-width:3px,color:#ffffff
+    classDef apiRoute fill:#ff9800,stroke:#e65100,stroke-width:3px,color:#ffffff
+    classDef protectedRoute fill:#9c27b0,stroke:#6a1b9a,stroke-width:3px,color:#ffffff
+
+    class A,B publicRoute
+    class C apiRoute
+    class D,E,F,G,H,I,J protectedRoute
 ```
 
 ### Authentication Routes:
@@ -325,25 +320,27 @@ graph TD
 
 ```mermaid
 sequenceDiagram
-    participant U as User
-    participant L as Login Page
-    participant A as Better Auth
-    participant DB as Database
-    participant M as Middleware
-    participant D as Dashboard
+    participant U as <b>User</b>
+    participant L as <b>Login Page</b>
+    participant A as <b>Better Auth</b>
+    participant DB as <b>Database</b>
+    participant M as <b>Middleware</b>
+    participant D as <b>Dashboard</b>
 
-    U->>L: Enter Credentials
-    L->>A: POST /api/auth/sign-in
-    A->>DB: Validate User
-    DB-->>A: User Data
-    A->>A: Create Session
-    A-->>L: Session Cookie
-    L->>D: Redirect to /dashboard
-    D->>M: Check Session
-    M->>A: Validate Session
-    A-->>M: Valid Session
-    M-->>D: Allow Access
-    D-->>U: Dashboard Loaded
+    U->>L: 1. Enter Email & Password
+    L->>A: 2. POST /api/auth/sign-in
+    A->>DB: 3. Validate User Credentials
+    DB-->>A: 4. User Data (Valid)
+    A->>A: 5. Create Session Token
+    A-->>L: 6. Session Cookie (Secure)
+    L->>D: 7. Redirect to /dashboard
+    D->>M: 8. Check Session Validity
+    M->>A: 9. Validate Session Token
+    A-->>M: 10. Session Valid
+    M-->>D: 11. Allow Access
+    D-->>U: 12. Dashboard Loaded
+
+    Note over U,D: Authentication Complete
 ```
 
 ### Better Auth Implementation:

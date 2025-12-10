@@ -27,21 +27,21 @@ Farm Assist is a Progressive Web Application (PWA) built on a full-stack React a
 ```mermaid
 graph TB
     subgraph "Client Layer"
-        A[React UI Components]
-        B[PWA Service Worker]
-        C[TanStack Query State Management]
+        A["<b>React UI Components</b><br/><small>User Interface</small>"]
+        B["<b>PWA Service Worker</b><br/><small>Offline Support</small>"]
+        C["<b>TanStack Query</b><br/><small>State Management</small>"]
     end
 
     subgraph "Application Layer"
-        D[TanStack Router]
-        E[Better Auth]
-        F[Server Functions API]
+        D["<b>TanStack Router</b><br/><small>URL Routing</small>"]
+        E["<b>Better Auth</b><br/><small>Authentication</small>"]
+        F["<b>Server Functions</b><br/><small>API Endpoints</small>"]
     end
 
     subgraph "Data Layer"
-        G[Drizzle ORM]
-        H[SQLite Database]
-        I[File System Backups/Logs]
+        G["<b>Drizzle ORM</b><br/><small>Database Interface</small>"]
+        H["<b>SQLite Database</b><br/><small>Data Storage</small>"]
+        I["<b>File System</b><br/><small>Backups & Logs</small>"]
     end
 
     A --> D
@@ -53,15 +53,13 @@ graph TB
     G --> H
     G --> I
 
-    style A fill:#e1f5fe
-    style B fill:#e8f5e8
-    style C fill:#fff3e0
-    style D fill:#f3e5f5
-    style E fill:#fce4ec
-    style F fill:#e0f2f1
-    style G fill:#f1f8e9
-    style H fill:#fff8e1
-    style I fill:#e8eaf6
+    classDef client fill:#e3f2fd,stroke:#1976d2,stroke-width:3px,color:#000000
+    classDef application fill:#fce4ec,stroke:#c2185b,stroke-width:3px,color:#000000
+    classDef data fill:#e8f5e8,stroke:#388e3c,stroke-width:3px,color:#000000
+
+    class A,B,C client
+    class D,E,F application
+    class G,H,I data
 ```
 
 ### 2.2 Component Architecture
@@ -379,48 +377,52 @@ erDiagram
 
 ```mermaid
 sequenceDiagram
-    participant U as User
-    participant C as React Component
-    participant Q as TanStack Query
-    participant S as Server Function
-    participant D as Drizzle ORM
-    participant DB as SQLite Database
+    participant U as <b>User</b>
+    participant C as <b>React Component</b>
+    participant Q as <b>TanStack Query</b>
+    participant S as <b>Server Function</b>
+    participant D as <b>Drizzle ORM</b>
+    participant DB as <b>SQLite Database</b>
 
-    U->>C: User Action
-    C->>Q: Trigger Query/Mutation
-    Q->>S: API Request
-    S->>D: Database Operation
-    D->>DB: SQL Query
-    DB-->>D: Data Response
-    D-->>S: ORM Response
-    S-->>Q: JSON Response
-    Q-->>C: Cache Update
-    C-->>U: UI Update
+    U->>C: 1. User Action (Click/Form)
+    C->>Q: 2. Trigger Query/Mutation
+    Q->>S: 3. API Request (HTTP)
+    S->>D: 4. Database Operation
+    D->>DB: 5. SQL Query
+    DB-->>D: 6. Data Response
+    D-->>S: 7. ORM Response
+    S-->>Q: 8. JSON Response
+    Q-->>C: 9. Cache Update
+    C-->>U: 10. UI Update
+
+    Note over U,DB: Complete Request-Response Cycle
 ```
 
 #### 3.3.2 Authentication Flow
 
 ```mermaid
 sequenceDiagram
-    participant U as User
-    participant L as Login Form
-    participant A as Better Auth
-    participant DB as Database
-    participant S as Session Store
-    participant R as Protected Route
+    participant U as <b>User</b>
+    participant L as <b>Login Form</b>
+    participant A as <b>Better Auth</b>
+    participant DB as <b>Database</b>
+    participant S as <b>Session Store</b>
+    participant R as <b>Protected Route</b>
 
-    U->>L: Submit Credentials
-    L->>A: Authentication Request
-    A->>DB: Validate User
-    DB-->>A: User Data
-    A->>S: Create Session
-    S-->>A: Session Token
-    A-->>L: Auth Response
-    L-->>U: Login Success
-    U->>R: Access Protected Route
-    R->>S: Validate Session
-    S-->>R: Session Valid
-    R-->>U: Grant Access
+    U->>L: 1. Submit Email/Password
+    L->>A: 2. Authentication Request
+    A->>DB: 3. Validate User Credentials
+    DB-->>A: 4. User Data (Valid)
+    A->>S: 5. Create Session Token
+    S-->>A: 6. Session ID
+    A-->>L: 7. Auth Response + Cookie
+    L-->>U: 8. Login Success
+    U->>R: 9. Access Protected Route
+    R->>S: 10. Validate Session
+    S-->>R: 11. Session Valid
+    R-->>U: 12. Grant Access to Dashboard
+
+    Note over U,R: Authentication Complete
 ```
 
 ---
