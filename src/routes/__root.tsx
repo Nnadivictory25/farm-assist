@@ -25,7 +25,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
       {
         name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
+        content: 'width=device-width, initial-scale=1, viewport-fit=cover',
       },
       {
         title: 'Farm Assist - Track Expenses, Harvests & Profits',
@@ -34,6 +34,27 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         name: 'description',
         content:
           'Simple farm record keeping and expense tracking for smallholder farmers. Track expenses, harvests, sales, and see your profit instantly.',
+      },
+      // iOS PWA meta tags
+      {
+        name: 'apple-mobile-web-app-capable',
+        content: 'yes',
+      },
+      {
+        name: 'apple-mobile-web-app-status-bar-style',
+        content: 'default',
+      },
+      {
+        name: 'apple-mobile-web-app-title',
+        content: 'Farm Assist',
+      },
+      {
+        name: 'mobile-web-app-capable',
+        content: 'yes',
+      },
+      {
+        name: 'theme-color',
+        content: '#16a34a',
       },
     ],
     links: [
@@ -48,6 +69,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       {
         rel: 'apple-touch-icon',
         href: '/apple-touch-icon.png',
+      },
+      {
+        rel: 'manifest',
+        href: '/manifest.webmanifest',
       },
     ],
   }),
