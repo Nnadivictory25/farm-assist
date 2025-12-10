@@ -4,7 +4,7 @@ import { auth } from '@/lib/auth'
 import { queryOptions } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { getRequestHeaders } from '@tanstack/react-start/server'
-import { and, desc, eq, sql } from 'drizzle-orm'
+import { and, desc, eq } from 'drizzle-orm'
 
 export const getExpenses = createServerFn({ method: 'GET' }).handler(
   async () => {
@@ -15,7 +15,7 @@ export const getExpenses = createServerFn({ method: 'GET' }).handler(
       throw new Error('Unauthorized')
     }
 
-    // Get expenses that belong to the user via field ownership
+    // Get expenses that belong to the user - now simple with direct userId filter
     const data = await db
       .select({
         id: expenses.id,
@@ -36,11 +36,8 @@ export const getExpenses = createServerFn({ method: 'GET' }).handler(
       })
       .from(expenses)
       .leftJoin(crops, eq(expenses.cropId, crops.id))
-      .leftJoin(
-        fields,
-        sql`${expenses.fieldId} = ${fields.id} OR (${expenses.cropId} IS NOT NULL AND ${crops.fieldId} = ${fields.id})`,
-      )
-      .where(sql`${fields.userId} = ${session.user.id}`)
+      .leftJoin(fields, eq(expenses.fieldId, fields.id))
+      .where(eq(expenses.userId, session.user.id))
       .orderBy(desc(expenses.purchasedOn))
 
     console.log(
@@ -114,6 +111,7 @@ export const addExpense = createServerFn({ method: 'POST' })
     const [newExpense] = await db
       .insert(expenses)
       .values({
+        userId: session.user.id,
         category: data.category,
         item: data.item,
         totalCost: data.totalCost,

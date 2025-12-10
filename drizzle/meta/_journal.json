@@ -8,6 +8,20 @@
       "when": 1765311977145,
       "tag": "0000_equal_radioactive_man",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1765359060681,
+      "tag": "0001_daffy_mantis",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1765359362836,
+      "tag": "0002_amused_maria_hill",
+      "breakpoints": true
     }
   ]
 }

@@ -34,7 +34,7 @@ export const getSales = createServerFn({ method: 'GET' }).handler(async () => {
     .innerJoin(harvests, eq(sales.harvestId, harvests.id))
     .innerJoin(crops, eq(harvests.cropId, crops.id))
     .leftJoin(fields, eq(crops.fieldId, fields.id))
-    .where(eq(fields.userId, session.user.id))
+    .where(eq(sales.userId, session.user.id))
     .orderBy(desc(sales.soldOn))
 
   console.log(
@@ -94,6 +94,7 @@ export const addSale = createServerFn({ method: 'POST' })
     const [newSale] = await db
       .insert(sales)
       .values({
+        userId: session.user.id,
         harvestId: ctx.data.harvestId,
         soldOn: ctx.data.soldOn,
         quantity: ctx.data.quantity,

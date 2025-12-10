@@ -32,7 +32,7 @@ export const getHarvests = createServerFn({ method: 'GET' }).handler(
       .from(harvests)
       .innerJoin(crops, eq(harvests.cropId, crops.id))
       .leftJoin(fields, eq(crops.fieldId, fields.id))
-      .where(eq(fields.userId, session.user.id))
+      .where(eq(harvests.userId, session.user.id))
       .orderBy(desc(harvests.harvestedOn))
 
     console.log(
@@ -87,6 +87,7 @@ export const addHarvest = createServerFn({ method: 'POST' })
     const [newHarvest] = await db
       .insert(harvests)
       .values({
+        userId: session.user.id,
         cropId: ctx.data.cropId,
         harvestedOn: ctx.data.harvestedOn,
         quantity: ctx.data.quantity,

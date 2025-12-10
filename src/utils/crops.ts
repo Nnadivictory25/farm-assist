@@ -28,11 +28,16 @@ export const getCrops = createServerFn({ method: 'GET' }).handler(async () => {
       createdAt: crops.createdAt,
     })
     .from(crops)
-    .leftJoin(fields, eq(crops.fieldId, fields.id))
-    .where(eq(fields.userId, session.user.id))
+    .innerJoin(fields, eq(crops.fieldId, fields.id))
+    .where(eq(crops.userId, session.user.id))
     .orderBy(desc(crops.createdAt))
 
-  console.log('🌱 Crops fetched for user:', session.user.id, '- Count:', data.length)
+  console.log(
+    '🌱 Crops fetched for user:',
+    session.user.id,
+    '- Count:',
+    data.length,
+  )
   return data
 })
 
@@ -63,9 +68,12 @@ export const addCrop = createServerFn({ method: 'POST' })
     }
 
     // Verify the field belongs to this user
-    const [field] = await db.select().from(fields).where(
-      and(eq(fields.id, data.fieldId), eq(fields.userId, session.user.id))
-    )
+    const [field] = await db
+      .select()
+      .from(fields)
+      .where(
+        and(eq(fields.id, data.fieldId), eq(fields.userId, session.user.id)),
+      )
 
     if (!field) {
       throw new Error('Field not found or unauthorized')
@@ -74,6 +82,7 @@ export const addCrop = createServerFn({ method: 'POST' })
     const [newCrop] = await db
       .insert(crops)
       .values({
+        userId: session.user.id,
         name: data.name,
         fieldId: data.fieldId,
         variety: data.variety,
@@ -84,7 +93,12 @@ export const addCrop = createServerFn({ method: 'POST' })
       })
       .returning()
 
-    console.log('✅ Crop added for user:', session.user.id, '- Crop:', newCrop.name)
+    console.log(
+      '✅ Crop added for user:',
+      session.user.id,
+      '- Crop:',
+      newCrop.name,
+    )
     return newCrop
   })
 
@@ -99,13 +113,14 @@ export const deleteCrop = createServerFn({ method: 'POST' })
     }
 
     // Only delete crops whose field belongs to this user
-    const result = await db.delete(crops).where(
-      eq(crops.id, id)
-    ).returning()
+    const result = await db.delete(crops).where(eq(crops.id, id)).returning()
 
     if (result.length > 0) {
       // Verify field ownership
-      const [field] = await db.select().from(fields).where(eq(fields.id, result[0].fieldId))
+      const [field] = await db
+        .select()
+        .from(fields)
+        .where(eq(fields.id, result[0].fieldId))
       if (field?.userId !== session.user.id) {
         throw new Error('Unauthorized')
       }
@@ -114,4 +129,3 @@ export const deleteCrop = createServerFn({ method: 'POST' })
     console.log('🗑️ Crop deleted for user:', session.user.id, '- Crop ID:', id)
     return { success: true }
   })
-

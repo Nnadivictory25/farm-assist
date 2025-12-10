@@ -94,6 +94,9 @@ export const crops = sqliteTable(
   'crops',
   {
     id: integer('id').primaryKey({ autoIncrement: true }),
+    userId: text('user_id').references(() => users.id, {
+      onDelete: 'set null',
+    }),
     fieldId: integer('field_id')
       .notNull()
       .references(() => fields.id, { onDelete: 'cascade' }),
@@ -105,13 +108,22 @@ export const crops = sqliteTable(
     notes: text('notes'),
     ...timestamps,
   },
-  (table) => [index('crops_field_season_idx').on(table.fieldId, table.season)],
+  (table) => [
+    index('crops_user_field_season_idx').on(
+      table.userId,
+      table.fieldId,
+      table.season,
+    ),
+  ],
 )
 
 export const activities = sqliteTable(
   'activities',
   {
     id: integer('id').primaryKey({ autoIncrement: true }),
+    userId: text('user_id').references(() => users.id, {
+      onDelete: 'set null',
+    }),
     cropId: integer('crop_id')
       .notNull()
       .references(() => crops.id, { onDelete: 'cascade' }),
@@ -123,7 +135,11 @@ export const activities = sqliteTable(
     ...timestamps,
   },
   (table) => [
-    index('activities_crop_date_idx').on(table.cropId, table.performedOn),
+    index('activities_user_crop_date_idx').on(
+      table.userId,
+      table.cropId,
+      table.performedOn,
+    ),
   ],
 )
 
@@ -131,6 +147,9 @@ export const expenses = sqliteTable(
   'expenses',
   {
     id: integer('id').primaryKey({ autoIncrement: true }),
+    userId: text('user_id').references(() => users.id, {
+      onDelete: 'set null',
+    }),
     cropId: integer('crop_id').references(() => crops.id, {
       onDelete: 'set null',
     }),
@@ -161,6 +180,9 @@ export const harvests = sqliteTable(
   'harvests',
   {
     id: integer('id').primaryKey({ autoIncrement: true }),
+    userId: text('user_id').references(() => users.id, {
+      onDelete: 'set null',
+    }),
     cropId: integer('crop_id')
       .notNull()
       .references(() => crops.id, { onDelete: 'cascade' }),
@@ -173,7 +195,11 @@ export const harvests = sqliteTable(
     ...timestamps,
   },
   (table) => [
-    index('harvests_crop_date_idx').on(table.cropId, table.harvestedOn),
+    index('harvests_user_crop_date_idx').on(
+      table.userId,
+      table.cropId,
+      table.harvestedOn,
+    ),
   ],
 )
 
@@ -181,6 +207,9 @@ export const sales = sqliteTable(
   'sales',
   {
     id: integer('id').primaryKey({ autoIncrement: true }),
+    userId: text('user_id').references(() => users.id, {
+      onDelete: 'set null',
+    }),
     harvestId: integer('harvest_id')
       .notNull()
       .references(() => harvests.id, { onDelete: 'cascade' }),
@@ -195,7 +224,11 @@ export const sales = sqliteTable(
     ...timestamps,
   },
   (table) => [
-    index('sales_harvest_date_idx').on(table.harvestId, table.soldOn),
+    index('sales_user_harvest_date_idx').on(
+      table.userId,
+      table.harvestId,
+      table.soldOn,
+    ),
   ],
 )
 
@@ -212,6 +245,7 @@ export const fieldsRelations = relations(fields, ({ many, one }) => ({
 }))
 
 export const cropsRelations = relations(crops, ({ many, one }) => ({
+  user: one(users, { fields: [crops.userId], references: [users.id] }),
   field: one(fields, { fields: [crops.fieldId], references: [fields.id] }),
   activities: many(activities),
   harvests: many(harvests),
@@ -219,15 +253,18 @@ export const cropsRelations = relations(crops, ({ many, one }) => ({
 }))
 
 export const activitiesRelations = relations(activities, ({ one }) => ({
+  user: one(users, { fields: [activities.userId], references: [users.id] }),
   crop: one(crops, { fields: [activities.cropId], references: [crops.id] }),
 }))
 
 export const harvestsRelations = relations(harvests, ({ many, one }) => ({
+  user: one(users, { fields: [harvests.userId], references: [users.id] }),
   crop: one(crops, { fields: [harvests.cropId], references: [crops.id] }),
   sales: many(sales),
 }))
 
 export const salesRelations = relations(sales, ({ one }) => ({
+  user: one(users, { fields: [sales.userId], references: [users.id] }),
   harvest: one(harvests, {
     fields: [sales.harvestId],
     references: [harvests.id],
@@ -235,6 +272,7 @@ export const salesRelations = relations(sales, ({ one }) => ({
 }))
 
 export const expensesRelations = relations(expenses, ({ one }) => ({
+  user: one(users, { fields: [expenses.userId], references: [users.id] }),
   crop: one(crops, { fields: [expenses.cropId], references: [crops.id] }),
   field: one(fields, { fields: [expenses.fieldId], references: [fields.id] }),
 }))
