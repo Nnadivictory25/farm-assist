@@ -28,13 +28,22 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'Farm Assist',
+        title: 'Farm Assist - Track Expenses, Harvests & Profits',
+      },
+      {
+        name: 'description',
+        content:
+          'Simple farm record keeping and expense tracking for smallholder farmers. Track expenses, harvests, sales, and see your profit instantly. Works offline.',
       },
     ],
     links: [
       {
         rel: 'stylesheet',
         href: appCss,
+      },
+      {
+        rel: 'icon',
+        href: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌱</text></svg>',
       },
     ],
   }),
