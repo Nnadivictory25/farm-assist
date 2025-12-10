@@ -24,6 +24,6 @@ ENV DATABASE_URL=file:/app/data/data.db
 # Expose port
 EXPOSE 3000
 
-# Run the production server
-CMD ["bun", "run", "server.ts"]
+# Run migrations then start server
+CMD bun run db:migrate && bun run server.ts
 
