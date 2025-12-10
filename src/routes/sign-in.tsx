@@ -14,6 +14,7 @@ import {
   Link,
   redirect,
   useNavigate,
+  useRouter,
 } from '@tanstack/react-router'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -31,6 +32,7 @@ export const Route = createFileRoute('/sign-in')({
 
 function AuthPage() {
   const navigate = useNavigate()
+  const router = useRouter()
   const [isSignUp, setIsSignUp] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -60,6 +62,7 @@ function AuthPage() {
 
       if (data) {
         toast.success('🎉 Account created successfully')
+        await router.invalidate()
         navigate({ to: '/dashboard' })
       }
     } else {
@@ -79,6 +82,7 @@ function AuthPage() {
 
       if (data) {
         toast.success('🎉 Signed in successfully')
+        await router.invalidate()
         navigate({ to: '/dashboard' })
       }
     }
