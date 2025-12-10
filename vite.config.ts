@@ -24,7 +24,7 @@ const config = defineConfig({
         theme_color: '#16a34a',
         background_color: '#ffffff',
         display: 'standalone',
-        start_url: '/',
+        start_url: '/dashboard/reports',
         icons: [
           {
             src: '/android-chrome-192x192.png',
