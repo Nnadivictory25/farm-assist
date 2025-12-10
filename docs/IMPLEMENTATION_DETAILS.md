@@ -18,6 +18,54 @@ This document provides a comprehensive step-by-step implementation guide for the
 
 The Farm Assist system is implemented using a modern full-stack React architecture with TypeScript, following a progressive web application (PWA) approach. The implementation spans frontend components, backend services, database design, and deployment strategies.
 
+### Implementation Architecture:
+
+```mermaid
+graph TB
+    subgraph "Implementation Phases"
+        A[Phase 1: Setup & Config]
+        B[Phase 2: Core Features]
+        C[Phase 3: Advanced Features]
+        D[Phase 4: Testing & Deployment]
+    end
+
+    subgraph "Technology Stack"
+        E[Frontend: React + TypeScript]
+        F[Backend: TanStack Start]
+        G[Database: SQLite + Drizzle]
+        H[Auth: Better Auth]
+    end
+
+    subgraph "Development Tools"
+        I[Bun Runtime]
+        J[Vite Build Tool]
+        K[Tailwind CSS]
+        L[shadcn/ui Components]
+    end
+
+    A --> E
+    B --> F
+    C --> G
+    D --> H
+    E --> I
+    F --> J
+    G --> K
+    H --> L
+
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style C fill:#e8f5e8
+    style D fill:#fff3e0
+    style E fill:#61dafb
+    style F fill:#ff6b6b
+    style G fill:#4ecdc4
+    style H fill:#95e1d3
+    style I fill:#f38181
+    style J fill:#aa96da
+    style K fill:#fcbad3
+    style L fill:#ffffd2
+```
+
 ---
 
 ## 2. Development Environment Setup

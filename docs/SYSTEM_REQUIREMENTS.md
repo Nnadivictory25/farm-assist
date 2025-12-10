@@ -32,6 +32,29 @@ The Farm Assist system provides a complete solution for farm management includin
 - Farm managers
 - Agricultural cooperatives
 
+### User Journey Flow:
+
+```mermaid
+journey
+    title Farmer's Daily Workflow
+    section Morning
+      Check Dashboard: 5: Farmer
+      Review Yesterday's Data: 4: Farmer
+      Plan Today's Activities: 5: Farmer
+    section Field Work
+      Record Activities: 3: Farmer
+      Log Expenses: 4: Farmer
+      Update Crop Status: 4: Farmer
+    section Evening
+      Record Harvest Data: 4: Farmer
+      Log Sales: 3: Farmer
+      Review Financial Reports: 5: Farmer
+    section Weekly
+      Analyze Profit/Loss: 5: Farmer
+      Plan Next Season: 4: Farmer
+      Export Reports: 3: Farmer
+```
+
 ---
 
 ## 2. Functional Requirements
@@ -369,11 +392,11 @@ The Farm Assist system provides a complete solution for farm management includin
 
 ## 8. Approval Signatures
 
-**Project Sponsor:** ************\_************  
-**Date:** ************\_************
+**Project Sponsor:** ****\*\*\*\*****\_****\*\*\*\*****  
+**Date:** ****\*\*\*\*****\_****\*\*\*\*****
 
-**Technical Lead:** ************\_************  
-**Date:** ************\_************
+**Technical Lead:** ****\*\*\*\*****\_****\*\*\*\*****  
+**Date:** ****\*\*\*\*****\_****\*\*\*\*****
 
-**Product Manager:** ************\_************  
-**Date:** ************\_************
+**Product Manager:** ****\*\*\*\*****\_****\*\*\*\*****  
+**Date:** ****\*\*\*\*****\_****\*\*\*\*****

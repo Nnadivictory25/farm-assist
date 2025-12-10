@@ -24,32 +24,44 @@ Farm Assist is a Progressive Web Application (PWA) built on a full-stack React a
 
 ### 2.1 High-Level Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Client Layer                              │
-├─────────────────────────────────────────────────────────────┤
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐   │
-│  │   React UI  │  │   PWA Core  │  │   State Management  │   │
-│  │ Components  │  │ Service     │  │   TanStack Query    │   │
-│  │             │  │ Worker      │  │                     │   │
-│  └─────────────┘  └─────────────┘  └─────────────────────┘   │
-├─────────────────────────────────────────────────────────────┤
-│                    Application Layer                         │
-├─────────────────────────────────────────────────────────────┤
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐   │
-│  │   TanStack  │  │   Better    │  │   Server Functions  │   │
-│  │   Router    │  │   Auth      │  │   (API Endpoints)   │   │
-│  │             │  │             │  │                     │   │
-│  └─────────────┘  └─────────────┘  └─────────────────────┘   │
-├─────────────────────────────────────────────────────────────┤
-│                    Data Layer                                │
-├─────────────────────────────────────────────────────────────┤
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐   │
-│  │   Drizzle   │  │   SQLite    │  │   File System      │   │
-│  │   ORM       │  │   Database  │  │   (Backups/Logs)   │   │
-│  │             │  │             │  │                     │   │
-│  └─────────────┘  └─────────────┘  └─────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        A[React UI Components]
+        B[PWA Service Worker]
+        C[TanStack Query State Management]
+    end
+
+    subgraph "Application Layer"
+        D[TanStack Router]
+        E[Better Auth]
+        F[Server Functions API]
+    end
+
+    subgraph "Data Layer"
+        G[Drizzle ORM]
+        H[SQLite Database]
+        I[File System Backups/Logs]
+    end
+
+    A --> D
+    B --> A
+    C --> A
+    D --> E
+    D --> F
+    F --> G
+    G --> H
+    G --> I
+
+    style A fill:#e1f5fe
+    style B fill:#e8f5e8
+    style C fill:#fff3e0
+    style D fill:#f3e5f5
+    style E fill:#fce4ec
+    style F fill:#e0f2f1
+    style G fill:#f1f8e9
+    style H fill:#fff8e1
+    style I fill:#e8eaf6
 ```
 
 ### 2.2 Component Architecture
@@ -257,49 +269,158 @@ CREATE TABLE sales (
 
 ### 3.2 Entity Relationship Diagram
 
-```
-Users (1) ──────── (N) Fields
-   │                     │
-   │                     │ (1)
-   │                     │
-   │                Crops (N)
-   │                     │
-   │                     │ (1)
-   │                     │
-   │                Activities (N)
-   │                     │
-   │                     │ (1)
-   │                     │
-   │                Harvests (N)
-   │                     │
-   │                     │ (1)
-   │                     │
-   │                Sales (N)
-   │
-   │
-   └─── (1) ──── (N) Expenses
-                     │
-                     │ (1)
-                     │
-                Fields (N)
+```mermaid
+erDiagram
+    USERS {
+        string id PK
+        string name
+        string email UK
+        boolean email_verified
+        string image
+        string phone
+        integer created_at
+        integer updated_at
+    }
+
+    FIELDS {
+        integer id PK
+        string user_id FK
+        string name
+        real area_ha
+        string location
+        string season
+        string notes
+        integer created_at
+        integer updated_at
+    }
+
+    CROPS {
+        integer id PK
+        integer field_id FK
+        string name
+        string variety
+        string season
+        string planting_date
+        string expected_harvest_date
+        string notes
+        integer created_at
+        integer updated_at
+    }
+
+    ACTIVITIES {
+        integer id PK
+        integer crop_id FK
+        string type
+        string performed_on
+        real labor_hours
+        string notes
+        string season
+        integer created_at
+        integer updated_at
+    }
+
+    EXPENSES {
+        integer id PK
+        integer crop_id FK
+        integer field_id FK
+        string category
+        string item
+        real quantity
+        string unit
+        real cost_per_unit
+        real total_cost
+        string purchased_on
+        string season
+        string notes
+        integer created_at
+        integer updated_at
+    }
+
+    HARVESTS {
+        integer id PK
+        integer crop_id FK
+        string harvested_on
+        real quantity
+        string unit
+        string quality_grade
+        string season
+        string notes
+        integer created_at
+        integer updated_at
+    }
+
+    SALES {
+        integer id PK
+        integer harvest_id FK
+        string sold_on
+        string buyer
+        real quantity
+        string unit
+        real price_per_unit
+        real total_amount
+        string season
+        string notes
+        integer created_at
+        integer updated_at
+    }
+
+    USERS ||--o{ FIELDS : owns
+    FIELDS ||--o{ CROPS : contains
+    CROPS ||--o{ ACTIVITIES : has
+    CROPS ||--o{ HARVESTS : produces
+    HARVESTS ||--o{ SALES : generates
+    FIELDS ||--o{ EXPENSES : incurs
+    CROPS ||--o{ EXPENSES : incurs
 ```
 
 ### 3.3 Data Flow Architecture
 
 #### 3.3.1 Request Flow
 
-```
-User Action → React Component → TanStack Query → Server Function → Drizzle ORM → SQLite Database
-                ↓                      ↓                ↓                ↓
-            UI Update ← Query Cache ← Response ← SQL Query ← Data
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant C as React Component
+    participant Q as TanStack Query
+    participant S as Server Function
+    participant D as Drizzle ORM
+    participant DB as SQLite Database
+
+    U->>C: User Action
+    C->>Q: Trigger Query/Mutation
+    Q->>S: API Request
+    S->>D: Database Operation
+    D->>DB: SQL Query
+    DB-->>D: Data Response
+    D-->>S: ORM Response
+    S-->>Q: JSON Response
+    Q-->>C: Cache Update
+    C-->>U: UI Update
 ```
 
 #### 3.3.2 Authentication Flow
 
-```
-Login Request → Better Auth → Session Creation → Cookie/Token Storage → Protected Route Access
-       ↓              ↓                ↓                    ↓
-   Credentials → Validation → Database Store → Client Storage → Route Guards
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant L as Login Form
+    participant A as Better Auth
+    participant DB as Database
+    participant S as Session Store
+    participant R as Protected Route
+
+    U->>L: Submit Credentials
+    L->>A: Authentication Request
+    A->>DB: Validate User
+    DB-->>A: User Data
+    A->>S: Create Session
+    S-->>A: Session Token
+    A-->>L: Auth Response
+    L-->>U: Login Success
+    U->>R: Access Protected Route
+    R->>S: Validate Session
+    S-->>R: Session Valid
+    R-->>U: Grant Access
 ```
 
 ---
@@ -558,34 +679,96 @@ CREATE INDEX sales_harvest_date_idx ON sales(harvest_id, sold_on);
 
 ### 8.1 Development Environment
 
-```
-Development Stack:
-- Bun: Package manager and runtime
-- Vite: Build tool and dev server
-- SQLite: Local database
-- TanStack DevTools: Development debugging
+```mermaid
+graph LR
+    subgraph "Development Stack"
+        A[Bun Runtime]
+        B[Vite Dev Server]
+        C[SQLite Local DB]
+        D[TanStack DevTools]
+    end
+
+    subgraph "Developer Tools"
+        E[Hot Reload]
+        F[Type Checking]
+        G[Linting]
+        H[Testing]
+    end
+
+    A --> B
+    B --> C
+    A --> D
+    B --> E
+    A --> F
+    A --> G
+    A --> H
+
+    style A fill:#ff6b6b
+    style B fill:#4ecdc4
+    style C fill:#45b7d1
+    style D fill:#96ceb4
 ```
 
 ### 8.2 Production Environment
 
-```
-Production Stack:
-- Node.js: Server runtime
-- PM2: Process management
-- Nginx: Reverse proxy and static serving
-- SQLite: Production database with backups
-- Docker: Containerization (optional)
+```mermaid
+graph TB
+    subgraph "Production Stack"
+        A[Docker Container]
+        B[Bun Runtime]
+        C[SQLite Production DB]
+        D[Nginx Reverse Proxy]
+    end
+
+    subgraph "Supporting Services"
+        E[PM2 Process Manager]
+        F[Backup System]
+        G[Monitoring]
+        H[SSL/TLS]
+    end
+
+    A --> B
+    B --> C
+    D --> A
+    E --> B
+    F --> C
+    G --> B
+    H --> D
+
+    style A fill:#e74c3c
+    style B fill:#3498db
+    style C fill:#2ecc71
+    style D fill:#f39c12
 ```
 
 ### 8.3 PWA Deployment
 
-```
-PWA Features:
-- Service Worker registration
-- Web App Manifest
-- Offline functionality
-- App installation prompts
-- Background synchronization
+```mermaid
+graph TD
+    subgraph "PWA Features"
+        A[Service Worker]
+        B[Web App Manifest]
+        C[Offline Cache]
+        D[Background Sync]
+    end
+
+    subgraph "User Experience"
+        E[App Installation]
+        F[Push Notifications]
+        G[Offline Functionality]
+        H[Fast Loading]
+    end
+
+    A --> C
+    B --> E
+    C --> G
+    D --> F
+    A --> H
+
+    style A fill:#9b59b6
+    style B fill:#3498db
+    style C fill:#2ecc71
+    style D fill:#e67e22
 ```
 
 ---
@@ -673,15 +856,15 @@ PWA Features:
 
 **Technical Architecture Review:**
 
-- Approved by: ************\_************
-- Date: ************\_************
+- Approved by: \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
+- Date: \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
 
 **Security Design Review:**
 
-- Approved by: ************\_************
-- Date: ************\_************
+- Approved by: \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
+- Date: \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
 
 **Performance Design Review:**
 
-- Approved by: ************\_************
-- Date: ************\_************
+- Approved by: \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
+- Date: \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
