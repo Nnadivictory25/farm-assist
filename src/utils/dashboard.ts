@@ -1,90 +1,91 @@
+import { eq, sql, sum } from 'drizzle-orm'
 import { db } from '@/db'
 import { crops, expenses, fields, harvests, sales } from '@/db/schema'
 import { auth } from '@/lib/auth'
 import { queryOptions } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { getRequestHeaders } from '@tanstack/react-start/server'
-import { sql } from 'drizzle-orm'
 
 export const getStats = createServerFn({ method: 'GET' }).handler(async () => {
-    const headers = getRequestHeaders()
-    const session = await auth.api.getSession({ headers })
+  const headers = getRequestHeaders()
+  const session = await auth.api.getSession({ headers })
 
-    if (!session?.user?.id) {
-        throw new Error('Unauthorized')
-    }
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized')
+  }
 
-    const userId = session.user.id
+  const userId = session.user.id
 
-    // Get stats using separate queries to avoid ambiguous column references
-    const [fieldCount] = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(fields)
-        .where(sql`${fields.userId} = ${userId}`)
+  // Use relations API for cleaner, type-safe queries
+  const fieldCount = await db.$count(fields, eq(fields.userId, userId))
 
-    const [cropCount] = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(crops)
-        .innerJoin(fields, sql`${crops.fieldId} = ${fields.id}`)
-        .where(sql`${fields.userId} = ${userId}`)
+  const cropCount = await db.$count(
+    crops,
+    sql`EXISTS (
+        SELECT 1 FROM ${fields} WHERE ${fields.id} = ${crops.fieldId} AND ${fields.userId} = ${userId}
+    )`,
+  )
 
-    const [harvestCount] = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(harvests)
-        .innerJoin(crops, sql`${harvests.cropId} = ${crops.id}`)
-        .innerJoin(fields, sql`${crops.fieldId} = ${fields.id}`)
-        .where(sql`${fields.userId} = ${userId}`)
+  const harvestCount = await db.$count(
+    harvests,
+    sql`EXISTS (
+        SELECT 1 FROM ${crops}
+        INNER JOIN ${fields} ON ${crops.fieldId} = ${fields.id}
+        WHERE ${harvests.cropId} = ${crops.id} AND ${fields.userId} = ${userId}
+    )`,
+  )
 
-    // Calculate total expenses by combining expenses from crops and direct field expenses
-    const [cropExpenses] = await db
-        .select({ sum: sql<number>`coalesce(sum(${expenses.totalCost}), 0)` })
-        .from(expenses)
-        .innerJoin(crops, sql`${expenses.cropId} = ${crops.id}`)
-        .innerJoin(fields, sql`${crops.fieldId} = ${fields.id}`)
-        .where(sql`${fields.userId} = ${userId}`)
+  // Calculate expenses using relations
+  const [cropExpensesResult] = await db
+    .select({ total: sum(expenses.totalCost) })
+    .from(expenses)
+    .innerJoin(crops, eq(expenses.cropId, crops.id))
+    .innerJoin(fields, eq(crops.fieldId, fields.id))
+    .where(eq(fields.userId, userId))
 
-    const [directFieldExpenses] = await db
-        .select({ sum: sql<number>`coalesce(sum(${expenses.totalCost}), 0)` })
-        .from(expenses)
-        .innerJoin(fields, sql`${expenses.fieldId} = ${fields.id}`)
-        .where(sql`${fields.userId} = ${userId} and ${expenses.cropId} is null`)
+  const [directExpensesResult] = await db
+    .select({ total: sum(expenses.totalCost) })
+    .from(expenses)
+    .innerJoin(fields, eq(expenses.fieldId, fields.id))
+    .where(sql`${fields.userId} = ${userId} AND ${expenses.cropId} IS NULL`)
 
-    const totalExpensesValue =
-        (cropExpenses?.sum ?? 0) + (directFieldExpenses?.sum ?? 0)
+  const totalExpenses =
+    Number(cropExpensesResult?.total ?? 0) +
+    Number(directExpensesResult?.total ?? 0)
 
-    const [totalRevenue] = await db
-        .select({ sum: sql<number>`coalesce(sum(${sales.totalAmount}), 0)` })
-        .from(sales)
-        .innerJoin(harvests, sql`${sales.harvestId} = ${harvests.id}`)
-        .innerJoin(crops, sql`${harvests.cropId} = ${crops.id}`)
-        .innerJoin(fields, sql`${crops.fieldId} = ${fields.id}`)
-        .where(sql`${fields.userId} = ${userId}`)
+  // Calculate revenue using relations
+  const [revenueResult] = await db
+    .select({ total: sum(sales.totalAmount) })
+    .from(sales)
+    .innerJoin(harvests, eq(sales.harvestId, harvests.id))
+    .innerJoin(crops, eq(harvests.cropId, crops.id))
+    .innerJoin(fields, eq(crops.fieldId, fields.id))
+    .where(eq(fields.userId, userId))
 
-    const stats = {
-        fieldCount: fieldCount?.count ?? 0,
-        cropCount: cropCount?.count ?? 0,
-        harvestCount: harvestCount?.count ?? 0,
-        totalExpenses: totalExpensesValue,
-        totalRevenue: totalRevenue?.sum ?? 0,
-    }
+  const totalRevenue = revenueResult?.total ?? 0
 
-    const revenue = stats?.totalRevenue ?? 0
-    const expensesTotal = stats?.totalExpenses ?? 0
+  const stats = {
+    fieldCount,
+    cropCount,
+    harvestCount,
+    totalExpenses,
+    totalRevenue,
+  }
 
-    console.log('📊 Dashboard data fetched for user:', userId, stats)
+  console.log('📊 Dashboard data fetched for user:', userId, stats)
 
-    return {
-        fieldCount: stats?.fieldCount ?? 0,
-        cropCount: stats?.cropCount ?? 0,
-        harvestCount: stats?.harvestCount ?? 0,
-        totalExpenses: expensesTotal,
-        totalRevenue: revenue,
-        profit: revenue - expensesTotal,
-    }
+  return {
+    fieldCount: stats.fieldCount,
+    cropCount: stats.cropCount,
+    harvestCount: stats.harvestCount,
+    totalExpenses: stats.totalExpenses,
+    totalRevenue: stats.totalRevenue,
+    profit: Number(stats.totalRevenue) - Number(stats.totalExpenses),
+  }
 })
 
 export const statsQueryOptions = () =>
-    queryOptions({
-        queryKey: ['stats'],
-        queryFn: () => getStats(),
-    })
+  queryOptions({
+    queryKey: ['stats'],
+    queryFn: () => getStats(),
+  })
