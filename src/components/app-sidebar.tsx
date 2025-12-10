@@ -21,6 +21,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
+import { Logo } from '@/components/logo'
 
 const menuItems = [
   { title: 'Dashboard', url: '/dashboard', icon: Home },
@@ -45,9 +46,7 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="p-4">
-        <Link to="/" className="text-xl font-extrabold">
-          🌱 Farm Assist
-        </Link>
+        <Logo className="text-xl" />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

@@ -1,6 +1,6 @@
 # 🌱 Farm Assist
 
-A Progressive Web App (PWA) for farm record keeping and expense tracking, designed for smallholder farmers. Track your expenses, harvests, sales, and see your profits — all in one place. Works offline.
+A Progressive Web App (PWA) for farm record keeping and expense tracking, designed for smallholder farmers. Track your expenses, harvests, sales, and see your profits — all in one place.
 
 ## Features
 
@@ -11,8 +11,7 @@ A Progressive Web App (PWA) for farm record keeping and expense tracking, design
 - **📦 Harvests** - Log your yields and harvest quantities
 - **💰 Sales** - Track revenue from selling your produce
 - **📈 Reports** - See net profit, expenses by category, and financial summaries
-- **📱 PWA** - Install on your phone, works offline
-- **🔄 Offline-first** - Record data without internet, syncs when online
+- **📱 PWA** - Install on your phone as an app
 
 ## Tech Stack
 

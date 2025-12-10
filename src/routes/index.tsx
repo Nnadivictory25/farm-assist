@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/logo'
 import { useSession } from '@/lib/auth-client'
-import { createFileRoute } from '@tanstack/react-router'
-import { Link } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({
   component: Home,
@@ -13,9 +13,7 @@ function Home() {
   return (
     <div className="container mx-auto min-h-screen bg-grid h-screen overflow-y-hidden!">
       <nav className="flex justify-between items-center py-5 px-5 lg:px-0 bg-white">
-        <Link to="/" className="text-2xl font-extrabold">
-          Farm Assist
-        </Link>
+        <Logo className="text-2xl" />
         <div className="flex items-center gap-2">
           {session ? (
             <Button asChild>
@@ -39,7 +37,6 @@ function Home() {
         <p className="text-center text-lg text-muted-foreground mt-6 max-w-2xl opacity-0 animate-fade-in-up [animation-delay:300ms]">
           Simple farm record keeping and expense tracking. Record what you
           spend, what you harvest, and what you sell. See your profit instantly.
-          Works offline.
         </p>
         <div className="flex gap-4 mt-10 opacity-0 animate-fade-in-up [animation-delay:400ms]">
           <Button asChild size="lg">

@@ -9,12 +9,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { authClient } from '@/lib/auth-client'
-import {
-  createFileRoute,
-  Link,
-  redirect,
-  useNavigate,
-} from '@tanstack/react-router'
+import { Logo } from '@/components/logo'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { useSession } from '@/lib/auth-client'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -92,9 +88,7 @@ function AuthPage() {
     <div className="min-h-screen bg-grid flex items-center justify-center px-5">
       <Card className="w-full max-w-md opacity-0 animate-fade-in-up">
         <CardHeader className="text-center">
-          <Link to="/" className="text-2xl font-extrabold">
-            Farm Assist
-          </Link>
+          <Logo className="text-2xl" />
           <CardDescription>
             {isSignUp ? 'Create your account' : 'Sign in to your account'}
           </CardDescription>

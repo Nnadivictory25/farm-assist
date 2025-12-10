@@ -33,7 +33,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       {
         name: 'description',
         content:
-          'Simple farm record keeping and expense tracking for smallholder farmers. Track expenses, harvests, sales, and see your profit instantly. Works offline.',
+          'Simple farm record keeping and expense tracking for smallholder farmers. Track expenses, harvests, sales, and see your profit instantly.',
       },
     ],
     links: [
@@ -43,7 +43,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
       {
         rel: 'icon',
-        href: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌱</text></svg>',
+        href: '/favicon.ico',
+      },
+      {
+        rel: 'apple-touch-icon',
+        href: '/apple-touch-icon.png',
       },
     ],
   }),
