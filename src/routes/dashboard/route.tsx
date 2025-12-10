@@ -26,6 +26,7 @@ import {
 import { authClient, useSession } from '@/lib/auth-client'
 import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router'
 import { LogOut } from 'lucide-react'
+import { useState } from 'react'
 import { toast } from 'sonner'
 
 export const Route = createFileRoute('/dashboard')({
@@ -35,10 +36,12 @@ export const Route = createFileRoute('/dashboard')({
 function DashboardLayout() {
   const { data: session, refetch } = useSession()
   const navigate = useNavigate()
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   const user = session?.user
 
   async function handleLogout() {
+    setIsLoggingOut(true)
     await authClient.signOut()
     await refetch()
     toast.success('👋 Logged out successfully')
@@ -107,8 +110,9 @@ function DashboardLayout() {
                       <AlertDialogAction
                         className="bg-destructive text-white hover:bg-destructive/90"
                         onClick={handleLogout}
+                        disabled={isLoggingOut}
                       >
-                        Log out
+                        {isLoggingOut ? 'Logging out...' : 'Log out'}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>

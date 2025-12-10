@@ -15,11 +15,11 @@ COPY . .
 RUN bun run build
 
 # Create data directory for SQLite
-RUN mkdir -p /app/data
+RUN mkdir -p /data
 
 # Set environment variables
 ENV NODE_ENV=production
-ENV DATABASE_URL=file:/app/data/data.db
+ENV DATABASE_URL=file:/data/data.db
 
 # Expose port
 EXPOSE 3000
