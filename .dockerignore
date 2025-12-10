@@ -1,0 +1,9 @@
+node_modules
+.output
+.vinxi
+.git
+*.md
+*.db
+.env*
+.DS_Store
+
