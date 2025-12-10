@@ -11,5 +11,6 @@ export const auth = betterAuth({
         provider: 'sqlite',
         usePlural: true,
     }),
+    baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
     plugins: [tanstackStartCookies()]
 })
