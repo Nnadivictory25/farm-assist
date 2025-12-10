@@ -3,7 +3,6 @@ import { getRequestHeaders } from '@tanstack/react-start/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/db'
 import { fields, crops, harvests, expenses, sales } from '@/db/schema'
-import { sql } from 'drizzle-orm'
 
 export const Route = createFileRoute('/api/seed')({
   server: {
@@ -22,12 +21,7 @@ export const Route = createFileRoute('/api/seed')({
         const userId = session.user.id
         console.log('🌱 Seeding database for user:', userId)
 
-        // Clear existing data for this user
-        await db.delete(sales).where(sql`${sales.userId} = ${userId}`)
-        await db.delete(harvests).where(sql`${harvests.userId} = ${userId}`)
-        await db.delete(expenses).where(sql`${expenses.userId} = ${userId}`)
-        await db.delete(crops).where(sql`${crops.userId} = ${userId}`)
-        await db.delete(fields).where(sql`${fields.userId} = ${userId}`)
+        // Note: Not clearing existing data - seeding is additive
 
         // 1. Create sample fields
         const sampleFields = [

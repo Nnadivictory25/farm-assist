@@ -30,7 +30,7 @@ function DashboardHome() {
   const handleSeedDatabase = async () => {
     if (
       !confirm(
-        'This will clear all your existing data and add sample data. Continue?',
+        'This will add sample data to your account. Your existing data will be preserved. Continue?',
       )
     ) {
       return
