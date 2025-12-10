@@ -14,11 +14,45 @@ This section describes how the system design presented in Chapter 3 was translat
 
 ### 4.1.1 Overall Architecture Implementation
 
-The **High-Level Architecture diagram** from the System Design (Section 3.2.1) shows three distinct layers:
+The **High-Level Architecture diagram** from the System Design shows three distinct layers:
 
-1. **Client Layer** – React UI Components, PWA Service Worker, TanStack Query
-2. **Application Layer** – TanStack Router, Better Auth, Server Functions
-3. **Data Layer** – Drizzle ORM, SQLite Database, File System
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        A["<b>React UI Components</b><br/><small>User Interface</small>"]
+        B["<b>PWA Service Worker</b><br/><small>Offline Support</small>"]
+        C["<b>TanStack Query</b><br/><small>State Management</small>"]
+    end
+
+    subgraph "Application Layer"
+        D["<b>TanStack Router</b><br/><small>URL Routing</small>"]
+        E["<b>Better Auth</b><br/><small>Authentication</small>"]
+        F["<b>Server Functions</b><br/><small>API Endpoints</small>"]
+    end
+
+    subgraph "Data Layer"
+        G["<b>Drizzle ORM</b><br/><small>Database Interface</small>"]
+        H["<b>SQLite Database</b><br/><small>Data Storage</small>"]
+        I["<b>File System</b><br/><small>Backups & Logs</small>"]
+    end
+
+    A --> D
+    B --> A
+    C --> A
+    D --> E
+    D --> F
+    F --> G
+    G --> H
+    G --> I
+
+    classDef client fill:#e3f2fd,stroke:#1976d2,stroke-width:3px,color:#000000
+    classDef application fill:#fce4ec,stroke:#c2185b,stroke-width:3px,color:#000000
+    classDef data fill:#e8f5e8,stroke:#388e3c,stroke-width:3px,color:#000000
+
+    class A,B,C client
+    class D,E,F application
+    class G,H,I data
+```
 
 This three-tier architecture was implemented exactly as designed:
 
@@ -80,10 +114,111 @@ Business logic utilities from the design were implemented with server functions:
 
 ### 4.1.3 Database Schema Implementation
 
-The **Entity Relationship Diagram (ERD)** from Section 3.3.2 of the design document shows the relationships between:
-- USERS → FIELDS → CROPS → HARVESTS → SALES
-- CROPS also link to ACTIVITIES and EXPENSES
-- FIELDS also link to EXPENSES
+The **Entity Relationship Diagram (ERD)** from the design document shows the relationships between all entities:
+
+```mermaid
+erDiagram
+    USERS {
+        string id PK
+        string name
+        string email UK
+        boolean email_verified
+        string image
+        string phone
+        integer created_at
+        integer updated_at
+    }
+
+    FIELDS {
+        integer id PK
+        string user_id FK
+        string name
+        real area_ha
+        string location
+        string season
+        string notes
+        integer created_at
+        integer updated_at
+    }
+
+    CROPS {
+        integer id PK
+        integer field_id FK
+        string name
+        string variety
+        string season
+        string planting_date
+        string expected_harvest_date
+        string notes
+        integer created_at
+        integer updated_at
+    }
+
+    ACTIVITIES {
+        integer id PK
+        integer crop_id FK
+        string type
+        string performed_on
+        real labor_hours
+        string notes
+        string season
+        integer created_at
+        integer updated_at
+    }
+
+    EXPENSES {
+        integer id PK
+        integer crop_id FK
+        integer field_id FK
+        string category
+        string item
+        real quantity
+        string unit
+        real cost_per_unit
+        real total_cost
+        string purchased_on
+        string season
+        string notes
+        integer created_at
+        integer updated_at
+    }
+
+    HARVESTS {
+        integer id PK
+        integer crop_id FK
+        string harvested_on
+        real quantity
+        string unit
+        string quality_grade
+        string season
+        string notes
+        integer created_at
+        integer updated_at
+    }
+
+    SALES {
+        integer id PK
+        integer harvest_id FK
+        string sold_on
+        string buyer
+        real quantity
+        string unit
+        real price_per_unit
+        real total_amount
+        string season
+        string notes
+        integer created_at
+        integer updated_at
+    }
+
+    USERS ||--o{ FIELDS : owns
+    FIELDS ||--o{ CROPS : contains
+    CROPS ||--o{ ACTIVITIES : has
+    CROPS ||--o{ HARVESTS : produces
+    HARVESTS ||--o{ SALES : generates
+    FIELDS ||--o{ EXPENSES : incurs
+    CROPS ||--o{ EXPENSES : incurs
+```
 
 This was implemented exactly as designed in `src/db/schema.ts` using Drizzle ORM:
 
@@ -108,14 +243,30 @@ This was implemented exactly as designed in `src/db/schema.ts` using Drizzle ORM
 
 ### 4.1.4 Request Flow Implementation
 
-The **Request Flow Sequence Diagram** (Section 3.3.3.1 of the design) shows the complete request-response cycle:
+The **Request Flow Sequence Diagram** from the design shows the complete request-response cycle:
 
-1. User Action → React Component
-2. React Component → TanStack Query
-3. TanStack Query → Server Function (HTTP)
-4. Server Function → Drizzle ORM
-5. Drizzle ORM → SQLite Database
-6. SQLite → Drizzle → Server Function → TanStack Query → React Component → UI Update
+```mermaid
+sequenceDiagram
+    participant U as <b>User</b>
+    participant C as <b>React Component</b>
+    participant Q as <b>TanStack Query</b>
+    participant S as <b>Server Function</b>
+    participant D as <b>Drizzle ORM</b>
+    participant DB as <b>SQLite Database</b>
+
+    U->>C: 1. User Action (Click/Form)
+    C->>Q: 2. Trigger Query/Mutation
+    Q->>S: 3. API Request (HTTP)
+    S->>D: 4. Database Operation
+    D->>DB: 5. SQL Query
+    DB-->>D: 6. Data Response
+    D-->>S: 7. ORM Response
+    S-->>Q: 8. JSON Response
+    Q-->>C: 9. Cache Update
+    C-->>U: 10. UI Update
+
+    Note over U,DB: Complete Request-Response Cycle
+```
 
 This flow is implemented using the following pattern:
 
@@ -141,7 +292,7 @@ export const fieldsQueryOptions = () =>
 export const getFields = createServerFn({ method: 'GET' }).handler(async () => {
   const allFields = await db.select().from(fields)
   return allFields
-})
+  })
 ```
 
 **Database Operation (Drizzle ORM):**
@@ -149,27 +300,43 @@ Drizzle translates the query to SQL and executes it against SQLite, returning ty
 
 **Mutations** follow a similar pattern but use `useMutation`:
 ```typescript
-const addMutation = useMutation({
-  mutationFn: addField,
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['fields'] })
-    toast.success('🌾 Field added successfully')
+  const addMutation = useMutation({
+    mutationFn: addField,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['fields'] })
+      toast.success('🌾 Field added successfully')
   }
 })
 ```
 
 ### 4.1.5 Authentication Flow Implementation
 
-The **Authentication Flow Sequence Diagram** (Section 3.3.3.2 of the design) shows:
+The **Authentication Flow Sequence Diagram** from the design shows the complete authentication process:
 
-1. User submits email/password → Login Form
-2. Login Form → Better Auth (authentication request)
-3. Better Auth → Database (validate credentials)
-4. Database → Better Auth (user data valid)
-5. Better Auth → Session Store (create session token)
-6. Session Store → Better Auth → Login Form (auth response + cookie)
-7. Login Form → User (login success)
-8. User → Protected Route → Session validation → Dashboard access
+```mermaid
+sequenceDiagram
+    participant U as <b>User</b>
+    participant L as <b>Login Form</b>
+    participant A as <b>Better Auth</b>
+    participant DB as <b>Database</b>
+    participant S as <b>Session Store</b>
+    participant R as <b>Protected Route</b>
+
+    U->>L: 1. Submit Email/Password
+    L->>A: 2. Authentication Request
+    A->>DB: 3. Validate User Credentials
+    DB-->>A: 4. User Data (Valid)
+    A->>S: 5. Create Session Token
+    S-->>A: 6. Session ID
+    A-->>L: 7. Auth Response + Cookie
+    L-->>U: 8. Login Success
+    U->>R: 9. Access Protected Route
+    R->>S: 10. Validate Session
+    S-->>R: 11. Session Valid
+    R-->>U: 12. Grant Access to Dashboard
+
+    Note over U,R: Authentication Complete
+```
 
 This flow is implemented as follows:
 
