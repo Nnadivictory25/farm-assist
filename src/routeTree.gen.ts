@@ -19,6 +19,7 @@ import { Route as DashboardHarvestsRouteImport } from './routes/dashboard/harves
 import { Route as DashboardFieldsRouteImport } from './routes/dashboard/fields'
 import { Route as DashboardExpensesRouteImport } from './routes/dashboard/expenses'
 import { Route as DashboardCropsRouteImport } from './routes/dashboard/crops'
+import { Route as ApiSeedRouteImport } from './routes/api/seed'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const SignInRoute = SignInRouteImport.update({
@@ -71,6 +72,11 @@ const DashboardCropsRoute = DashboardCropsRouteImport.update({
   path: '/crops',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+const ApiSeedRoute = ApiSeedRouteImport.update({
+  id: '/api/seed',
+  path: '/api/seed',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
+  '/api/seed': typeof ApiSeedRoute
   '/dashboard/crops': typeof DashboardCropsRoute
   '/dashboard/expenses': typeof DashboardExpensesRoute
   '/dashboard/fields': typeof DashboardFieldsRoute
@@ -93,6 +100,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sign-in': typeof SignInRoute
+  '/api/seed': typeof ApiSeedRoute
   '/dashboard/crops': typeof DashboardCropsRoute
   '/dashboard/expenses': typeof DashboardExpensesRoute
   '/dashboard/fields': typeof DashboardFieldsRoute
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
+  '/api/seed': typeof ApiSeedRoute
   '/dashboard/crops': typeof DashboardCropsRoute
   '/dashboard/expenses': typeof DashboardExpensesRoute
   '/dashboard/fields': typeof DashboardFieldsRoute
@@ -122,6 +131,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/sign-in'
+    | '/api/seed'
     | '/dashboard/crops'
     | '/dashboard/expenses'
     | '/dashboard/fields'
@@ -134,6 +144,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/sign-in'
+    | '/api/seed'
     | '/dashboard/crops'
     | '/dashboard/expenses'
     | '/dashboard/fields'
@@ -147,6 +158,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/sign-in'
+    | '/api/seed'
     | '/dashboard/crops'
     | '/dashboard/expenses'
     | '/dashboard/fields'
@@ -161,6 +173,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   SignInRoute: typeof SignInRoute
+  ApiSeedRoute: typeof ApiSeedRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -236,6 +249,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCropsRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/api/seed': {
+      id: '/api/seed'
+      path: '/api/seed'
+      fullPath: '/api/seed'
+      preLoaderRoute: typeof ApiSeedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -274,6 +294,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
   SignInRoute: SignInRoute,
+  ApiSeedRoute: ApiSeedRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
