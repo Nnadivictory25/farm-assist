@@ -4,6 +4,7 @@ import { statsQueryOptions } from '@/utils/dashboard'
 import { formatCurrency } from '@/utils/format'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import { Button } from '@/components/ui/button'
 import {
   Leaf,
   MapPin,
@@ -11,7 +12,9 @@ import {
   TrendingDown,
   TrendingUp,
   Wallet,
+  Database,
 } from 'lucide-react'
+import { useState } from 'react'
 
 export const Route = createFileRoute('/dashboard/')({
   component: DashboardHome,
@@ -22,6 +25,39 @@ export const Route = createFileRoute('/dashboard/')({
 
 function DashboardHome() {
   const { data: stats } = useSuspenseQuery(statsQueryOptions())
+  const [isSeeding, setIsSeeding] = useState(false)
+
+  const handleSeedDatabase = async () => {
+    if (
+      !confirm(
+        'This will clear all your existing data and add sample data. Continue?',
+      )
+    ) {
+      return
+    }
+
+    setIsSeeding(true)
+    try {
+      const response = await fetch('/api/seed', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.ok) {
+        // Redirect will happen automatically
+        window.location.reload()
+      } else {
+        alert('Failed to seed database')
+      }
+    } catch (error) {
+      console.error('Seeding failed:', error)
+      alert('Failed to seed database')
+    } finally {
+      setIsSeeding(false)
+    }
+  }
 
   const statCards = [
     {
@@ -97,6 +133,19 @@ function DashboardHome() {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* Seed Database Button */}
+      <div className="flex justify-center">
+        <Button
+          onClick={handleSeedDatabase}
+          disabled={isSeeding}
+          variant="outline"
+          className="flex items-center gap-2"
+        >
+          <Database className="h-4 w-4" />
+          {isSeeding ? 'Seeding Database...' : 'Seed Sample Data'}
+        </Button>
       </div>
     </div>
   )
