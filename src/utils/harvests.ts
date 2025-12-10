@@ -7,7 +7,7 @@ import { and, desc, eq } from 'drizzle-orm'
 import { getRequestHeaders } from '@tanstack/react-start/server'
 
 export const getHarvests = createServerFn({ method: 'GET' }).handler(
-  async (ctx) => {
+  async () => {
     const headers = getRequestHeaders()
     const session = await auth.api.getSession({ headers })
 
@@ -35,7 +35,12 @@ export const getHarvests = createServerFn({ method: 'GET' }).handler(
       .where(eq(fields.userId, session.user.id))
       .orderBy(desc(harvests.harvestedOn))
 
-    console.log('🌾 Harvests fetched for user:', session.user.id, '- Count:', data.length)
+    console.log(
+      '🌾 Harvests fetched for user:',
+      session.user.id,
+      '- Count:',
+      data.length,
+    )
     return data
   },
 )
@@ -59,16 +64,21 @@ type AddHarvestInput = {
 export const addHarvest = createServerFn({ method: 'POST' })
   .inputValidator((data: AddHarvestInput) => data)
   .handler(async (ctx) => {
-    const session = await auth.api.getSession()
+    const headers = getRequestHeaders()
+    const session = await auth.api.getSession({ headers })
 
     if (!session?.user?.id) {
       throw new Error('Unauthorized')
     }
 
     // Verify crop belongs to user
-    const [crop] = await db.select().from(crops)
+    const [crop] = await db
+      .select()
+      .from(crops)
       .innerJoin(fields, eq(crops.fieldId, fields.id))
-      .where(and(eq(crops.id, ctx.data.cropId), eq(fields.userId, session.user.id)))
+      .where(
+        and(eq(crops.id, ctx.data.cropId), eq(fields.userId, session.user.id)),
+      )
 
     if (!crop) {
       throw new Error('Crop not found or unauthorized')
@@ -87,14 +97,21 @@ export const addHarvest = createServerFn({ method: 'POST' })
       })
       .returning()
 
-    console.log('✅ Harvest added for user:', session.user.id, '- Quantity:', newHarvest.quantity, newHarvest.unit)
+    console.log(
+      '✅ Harvest added for user:',
+      session.user.id,
+      '- Quantity:',
+      newHarvest.quantity,
+      newHarvest.unit,
+    )
     return newHarvest
   })
 
 export const deleteHarvest = createServerFn({ method: 'POST' })
   .inputValidator((id: number) => id)
   .handler(async (ctx) => {
-    const session = await auth.api.getSession()
+    const headers = getRequestHeaders()
+    const session = await auth.api.getSession({ headers })
 
     if (!session?.user?.id) {
       throw new Error('Unauthorized')
@@ -103,7 +120,12 @@ export const deleteHarvest = createServerFn({ method: 'POST' })
     // Only delete harvests for user's crops
     await db.delete(harvests).where(eq(harvests.id, ctx.data))
 
-    console.log('🗑️ Harvest deleted for user:', session.user.id, '- Harvest ID:', ctx.data)
+    console.log(
+      '🗑️ Harvest deleted for user:',
+      session.user.id,
+      '- Harvest ID:',
+      ctx.data,
+    )
     return { success: true }
   })
 
@@ -118,4 +140,9 @@ export const HARVEST_UNITS = [
 ] as const
 
 // Quality grades
-export const QUALITY_GRADES = ['Grade A', 'Grade B', 'Grade C', 'Mixed'] as const
+export const QUALITY_GRADES = [
+  'Grade A',
+  'Grade B',
+  'Grade C',
+  'Mixed',
+] as const
