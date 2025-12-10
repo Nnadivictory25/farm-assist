@@ -1,10 +1,19 @@
 import { db } from '@/db'
 import { crops, fields } from '@/db/schema'
+import { auth } from '@/lib/auth'
 import { queryOptions } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
-import { desc, eq } from 'drizzle-orm'
+import { getRequestHeaders } from '@tanstack/react-start/server'
+import { and, desc, eq } from 'drizzle-orm'
 
 export const getCrops = createServerFn({ method: 'GET' }).handler(async () => {
+  const headers = getRequestHeaders()
+  const session = await auth.api.getSession({ headers })
+
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized')
+  }
+
   const data = await db
     .select({
       id: crops.id,
@@ -20,9 +29,10 @@ export const getCrops = createServerFn({ method: 'GET' }).handler(async () => {
     })
     .from(crops)
     .leftJoin(fields, eq(crops.fieldId, fields.id))
+    .where(eq(fields.userId, session.user.id))
     .orderBy(desc(crops.createdAt))
 
-  console.log('🌱 Crops fetched:', data.length)
+  console.log('🌱 Crops fetched for user:', session.user.id, '- Count:', data.length)
   return data
 })
 
@@ -45,6 +55,22 @@ type AddCropInput = {
 export const addCrop = createServerFn({ method: 'POST' })
   .inputValidator((data: AddCropInput) => data)
   .handler(async ({ data }) => {
+    const headers = getRequestHeaders()
+    const session = await auth.api.getSession({ headers })
+
+    if (!session?.user?.id) {
+      throw new Error('Unauthorized')
+    }
+
+    // Verify the field belongs to this user
+    const [field] = await db.select().from(fields).where(
+      and(eq(fields.id, data.fieldId), eq(fields.userId, session.user.id))
+    )
+
+    if (!field) {
+      throw new Error('Field not found or unauthorized')
+    }
+
     const [newCrop] = await db
       .insert(crops)
       .values({
@@ -58,15 +84,34 @@ export const addCrop = createServerFn({ method: 'POST' })
       })
       .returning()
 
-    console.log('✅ Crop added:', newCrop.name)
+    console.log('✅ Crop added for user:', session.user.id, '- Crop:', newCrop.name)
     return newCrop
   })
 
 export const deleteCrop = createServerFn({ method: 'POST' })
   .inputValidator((id: number) => id)
   .handler(async ({ data: id }) => {
-    await db.delete(crops).where(eq(crops.id, id))
-    console.log('🗑️ Crop deleted:', id)
+    const headers = getRequestHeaders()
+    const session = await auth.api.getSession({ headers })
+
+    if (!session?.user?.id) {
+      throw new Error('Unauthorized')
+    }
+
+    // Only delete crops whose field belongs to this user
+    const result = await db.delete(crops).where(
+      eq(crops.id, id)
+    ).returning()
+
+    if (result.length > 0) {
+      // Verify field ownership
+      const [field] = await db.select().from(fields).where(eq(fields.id, result[0].fieldId))
+      if (field?.userId !== session.user.id) {
+        throw new Error('Unauthorized')
+      }
+    }
+
+    console.log('🗑️ Crop deleted for user:', session.user.id, '- Crop ID:', id)
     return { success: true }
   })
 
