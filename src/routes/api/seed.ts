@@ -281,11 +281,15 @@ export const Route = createFileRoute('/api/seed')({
 
         console.log('✅ Database seeded successfully for user:', userId)
 
-        // Redirect to dashboard after seeding
-        return new Response(null, {
-          status: 302,
-          headers: {
-            Location: '/dashboard',
+        return Response.json({
+          success: true,
+          message: 'Sample data added successfully!',
+          data: {
+            fields: insertedFields.length,
+            crops: insertedCrops.length,
+            harvests: insertedHarvests.length,
+            expenses: sampleExpenses.length,
+            sales: sampleSales.length,
           },
         })
       },

@@ -46,10 +46,17 @@ function DashboardHome() {
       })
 
       if (response.ok) {
-        // Redirect will happen automatically
+        const result = await response.json()
+        alert(
+          `✅ ${result.message}\n\nAdded: ${result.data.fields} fields, ${result.data.crops} crops, ${result.data.harvests} harvests, ${result.data.expenses} expenses, ${result.data.sales} sales`,
+        )
+        // Refresh the page to show new data
         window.location.reload()
       } else {
-        alert('Failed to seed database')
+        const error = await response
+          .json()
+          .catch(() => ({ error: 'Unknown error' }))
+        alert(`❌ Failed to seed database: ${error.error}`)
       }
     } catch (error) {
       console.error('Seeding failed:', error)
